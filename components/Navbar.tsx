@@ -24,17 +24,11 @@ type NavigationType = {
 };
 
 const navigation: NavigationType[] = [
-  { name: "About Us", href: "/#about", icon: Users },
   { name: "Tour Packages", href: "/tour-packages", icon: Plane },
   { name: "Destinations", href: "/destinations", icon: MapPin },
-  { name: "Login", href: "/login", icon: PhoneCall },
-  { name: "Register", href: "/register", icon: PhoneCall },
 ];
 
 function Navbar() {
-  const [open, setOpen] = useState(false);
-
-  const closeSheet = () => setOpen(false);
   return (
     <>
       <header className=" relative container mx-auto py-6 inset-x-0  z-50">
@@ -54,51 +48,6 @@ function Navbar() {
             </span>
           </div>
 
-          <div className="flex lg:hidden">
-            <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden ">
-                  <Menu className="h-6 w-6 " />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <SheetHeader>
-                  <SheetTitle className="flex flex-col items-center gap-8 text-xl font-bold tracking-tighter ">
-                    <div>
-                      <Link href="/" onClick={closeSheet}>
-                        <Image
-                          alt="BlueLanka travels and tours"
-                          src="/logo.png"
-                          width={150}
-                          height={100}
-                        />
-                      </Link>
-                    </div>
-                    <span>
-                      Welcome to{" "}
-                      <span className="text-blue-900  ">
-                        BlueLanka Travels & Tours
-                      </span>
-                    </span>
-                  </SheetTitle>
-                </SheetHeader>
-                <nav className="mt-8 flex flex-col space-y-4 gap-4">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={closeSheet}
-                      className="flex items-center gap-2 text-lg hover:text-blue-600"
-                    >
-                      <item.icon />
-                      {item.name}
-                    </Link>
-                  ))}
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
           <div className="hidden lg:flex lg:gap-x-8 items-center justify-center">
             <div className="hidden lg:flex lg:gap-x-8">
               {navigation
@@ -113,7 +62,7 @@ function Navbar() {
                 ))
                 .slice(0, 3)}
             </div>
-            <div className="hidden lg:flex lg:flex-1 lg:justify-end px-2 space-x-4">
+            {/* <div className="hidden lg:flex lg:flex-1 lg:justify-end px-2 space-x-4">
               <Button
                 asChild
                 variant="outline"
@@ -127,7 +76,7 @@ function Navbar() {
               >
                 <Link href="/register">Register</Link>
               </Button>
-            </div>
+            </div> */}
           </div>
         </nav>
       </header>
