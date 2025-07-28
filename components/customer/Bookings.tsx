@@ -1,10 +1,12 @@
-// src/components/ModifyBookingForm.tsx
+// src/components/Booking.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { BookingFormData, useBookingForm } from "@/lib/validation/booking";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
@@ -31,28 +33,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Loader2,
-  Calendar,
-  Users,
-  DollarSign,
-  MapPin,
-  ArrowLeft,
-  Phone,
-} from "lucide-react";
+import { Loader2, Calendar, Users, DollarSign, MapPin } from "lucide-react";
 import Image from "next/image";
 import type { TourPackage } from "@/lib/types";
-import { DetailedBooking } from "./Dashboard";
+import CreatePackage from "./createPackage";
 
-interface ModifyBookingFormProps {
-  booking: DetailedBooking;
-  onBack: () => void;
-}
+type BookingFormProps = {
+  selectedPackageId: number;
+};
 
-export default function ModifyBookingForm({
-  booking,
-  onBack,
-}: ModifyBookingFormProps) {
+export default function Booking({ selectedPackageId }: BookingFormProps) {
   const [tourPackages, setTourPackages] = useState<TourPackage[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<TourPackage | null>(
     null
@@ -65,23 +55,6 @@ export default function ModifyBookingForm({
   const watchedPackageId = form.watch("tourPackageId");
   const watchedPeople = form.watch("numberOfPeople");
 
-  // Populate form with existing booking data
-  useEffect(() => {
-    const populateForm = () => {
-      form.reset({
-        tourPackageId: booking.tourPackageId,
-        travelDate: new Date(booking.travelDate).toISOString().split("T")[0],
-        numberOfPeople: booking.numberOfPeople,
-        specialRequests: booking.specialRequests || "",
-        phone: booking.phone || "",
-        country: booking.country || "",
-      });
-      setSelectedPackage(booking.tourPackage);
-    };
-
-    populateForm();
-  }, [booking, form]);
-
   useEffect(() => {
     const fetchTourPackages = async () => {
       setIsLoading(true);
@@ -89,9 +62,19 @@ export default function ModifyBookingForm({
         const response = await fetch(
           "http://localhost:5000/api/tour-packages/get-tour-packages"
         );
+        console.log("Response tour packages:", response);
         if (response.ok) {
           const packages = await response.json();
           setTourPackages(packages);
+
+          // Set selected package if provided
+          if (selectedPackageId) {
+            form.setValue("tourPackageId", selectedPackageId);
+            const selected = packages.find(
+              (pkg: TourPackage) => pkg.id === selectedPackageId
+            );
+            setSelectedPackage(selected || null);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch tour packages:", error);
@@ -101,7 +84,7 @@ export default function ModifyBookingForm({
     };
 
     fetchTourPackages();
-  }, []);
+  }, [selectedPackageId, form]);
 
   useEffect(() => {
     if (watchedPackageId && tourPackages.length > 0) {
@@ -123,11 +106,11 @@ export default function ModifyBookingForm({
         totalAmount,
         travelDate: new Date(data.travelDate).toISOString(),
       };
-
+      console.log("Booking data to submit:", bookingData);
       const response = await fetch(
-        `http://localhost:5000/api/bookings/customer/${booking.id}`,
+        "http://localhost:5000/api/bookings/createbooking",
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
@@ -138,15 +121,14 @@ export default function ModifyBookingForm({
 
       if (response.ok) {
         const result = await response.json();
-        window.location.reload(); // Reload to reflect changes
-        onBack(); // Navigate back after successful modification
-        console.log("Booking modified successfully:", result);
+        console.log("Booking successful:", result);
+        form.reset();
       } else {
         const errorData = await response.json();
-        console.error("Booking modification failed:", errorData);
+        console.error("Booking failed:", errorData);
       }
     } catch (error) {
-      console.error("Error modifying booking:", error);
+      console.error("Error submitting booking:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -154,30 +136,19 @@ export default function ModifyBookingForm({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Loading tour packages...</span>
+      <div className="flex justify-center items-center min-h-[400px]">
+        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          onClick={onBack}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Booking Details
-        </Button>
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Modify Booking #{booking.id}
-          </h1>
-          <p className="text-gray-600">Update your booking details below</p>
-        </div>
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold text-gray-900">Book Your Tour</h1>
+        <p className="text-gray-600">
+          Fill out the form below to book your dream vacation
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -187,7 +158,7 @@ export default function ModifyBookingForm({
             <CardHeader>
               <CardTitle>Booking Details</CardTitle>
               <CardDescription>
-                Modify your travel information and preferences
+                Please provide your travel information and preferences
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -253,7 +224,12 @@ export default function ModifyBookingForm({
                         <FormControl>
                           <Input
                             type="date"
-                            min={new Date().toISOString().split("T")[0]}
+                            min={(() => {
+                              const today = new Date();
+                              const tomorrow = new Date(today);
+                              tomorrow.setDate(tomorrow.getDate() + 2);
+                              return tomorrow.toISOString().split("T")[0];
+                            })()}
                             {...field}
                           />
                         </FormControl>
@@ -294,8 +270,33 @@ export default function ModifyBookingForm({
                       </FormItem>
                     )}
                   />
+                  {/* Phone Number */}
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          Phone Number
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="tel"
+                            placeholder="Enter your phone number"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value)}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          We will contact you for booking confirmation
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                  {/** Country */}
+                  {/* Country */}
                   <FormField
                     control={form.control}
                     name="country"
@@ -315,32 +316,6 @@ export default function ModifyBookingForm({
                         </FormControl>
                         <FormDescription>
                           Please provide your country of residence
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/** phone */}
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Phone className="w-4 h-4" />
-                          Phone
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="tel"
-                            placeholder="Enter your phone number"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value)}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Please provide your phone number
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -370,32 +345,22 @@ export default function ModifyBookingForm({
                     )}
                   />
 
-                  {/* Submit Buttons */}
-                  <div className="flex gap-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={onBack}
-                      className="flex-1"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
-                      size="lg"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Updating...
-                        </>
-                      ) : (
-                        "Update Booking"
-                      )}
-                    </Button>
-                  </div>
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-blue-600 text-white hover:bg-blue-700 "
+                    size="lg"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      "Book Now"
+                    )}
+                  </Button>
                 </form>
               </Form>
             </CardContent>
@@ -444,7 +409,7 @@ export default function ModifyBookingForm({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="w-5 h-5" />
-                  Updated Summary
+                  Booking Summary
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -459,7 +424,7 @@ export default function ModifyBookingForm({
                   </div>
                   <Separator />
                   <div className="flex justify-between font-semibold text-lg">
-                    <span>New Total Amount</span>
+                    <span>Total Amount</span>
                     <span className="text-blue-600">
                       ${totalAmount.toFixed(2)}
                     </span>
@@ -476,6 +441,7 @@ export default function ModifyBookingForm({
           )}
         </div>
       </div>
+      <CreatePackage />
     </div>
   );
 }

@@ -16,19 +16,7 @@ import { useTourPackageForm } from "@/lib/validation/tourPackageForm";
 import type { TourPackageFormValues } from "@/lib/validation/tourPackageForm";
 import { useFieldArray } from "react-hook-form";
 
-interface CreatePackageProps {
-  onSectionChange: (section: string) => void;
-  user: {
-    name: string;
-    email: string;
-    role: string;
-  } | null;
-}
-
-export default function CreatePackage({
-  onSectionChange,
-  user,
-}: CreatePackageProps) {
+export default function CreatePackage({}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useTourPackageForm();
   const {
@@ -85,22 +73,15 @@ export default function CreatePackage({
 
   return (
     <div className="space-y-8 ">
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-white">
-        <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.name}</h1>
-        <p className="text-blue-100 mb-6">
-          Create tour packages to offer exciting experiences to our customers.
-        </p>
-        <Button
-          variant="outline"
-          className="text-white bg-blue-700 hover:bg-blue-800"
-          onClick={() => onSectionChange("tour-packages")}
-        >
-          View Tour Packages
-        </Button>
-      </div>
-
       {/* Form Section */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Create Tour Package
+        </h1>
+        <p className="text-gray-600">
+          Fill out the form below to create a new tour package
+        </p>
+      </div>
       <div className=" max-w-6xl mx-auto px-4">
         <Card>
           <CardHeader>

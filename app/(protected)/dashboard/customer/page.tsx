@@ -1,10 +1,8 @@
 import { requireRole } from "@/lib/requireRole";
-import ClientDashboard from "@/components/customer/ClientDashboard";
-import { getUserData } from "@/lib/getUserData";
+import Booking from "@/components/customer/Bookings";
 
 export default async function ClientDashboardPage() {
   await requireRole("CUSTOMER");
-  const user = await getUserData();
 
-  return <ClientDashboard user={user} />;
+  return <Booking selectedPackageId={1} />;
 }

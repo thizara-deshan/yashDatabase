@@ -35,7 +35,7 @@ export const tourPackageFormSchema = z.object({
         description: z
           .string()
           .min(10, "Location description must be at least 10 characters"),
-        image: z.string().url("Location image must be a valid URL"),
+        image: z.string(),
       })
     )
     .min(1, "At least one location is required"),

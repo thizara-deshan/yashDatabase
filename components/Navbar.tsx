@@ -2,19 +2,9 @@
 
 import Image from "next/image";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "./ui/sheet";
-
-import { Button } from "@/components/ui/button";
-
 import Link from "next/link";
-import { Menu, Plane, MapPin, Users, PhoneCall } from "lucide-react";
-import { useState } from "react";
+import { Plane, MapPin } from "lucide-react";
+
 import React from "react";
 
 type NavigationType = {

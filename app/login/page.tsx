@@ -201,14 +201,6 @@ export default function LoginPage() {
             {/* Additional Options */}
             <div className="space-y-4">
               {/* Forgot Password Link */}
-              <div className="text-center">
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-500 transition-colors"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
 
               {/* Divider */}
               <div className="relative">
@@ -239,18 +231,6 @@ export default function LoginPage() {
         </Card>
 
         {/* Footer */}
-        <div className="text-center">
-          <p className="text-xs text-gray-500">
-            By signing in, you agree to our{" "}
-            <Link href="/terms" className="text-blue-600 hover:text-blue-500">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link href="/privacy" className="text-blue-600 hover:text-blue-500">
-              Privacy Policy
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
